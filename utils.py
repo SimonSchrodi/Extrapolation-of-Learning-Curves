@@ -71,19 +71,29 @@ def normalize_configs(configs:np.ndarray)->np.ndarray:
 
     return np.array(output)
 
-def normalize_accuracies(accuracies:np.ndarray)->np.ndarray:
-    return accuracies/100
+def normalize_temporal_data(temporal_data:np.ndarray,
+                            normalization_factor)->np.ndarray:
+    return temporal_data/normalization_factor
 
-def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size, temporal_keys=['Train/val_accuracy'], first_n_epochs=10):
-    configs = extract_from_data(data,"configs")
+def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
+              temporal_keys=['Train/val_accuracy'], first_n_epochs=10,
+              normalization_factor_temporal_data=[1]):
+
+    assert batch_size > 0
+    assert first_n_epochs > 0
+    assert len(temporal_keys) == len(normalization_factor_temporal_data)
+    assert all(normalization_factor_temporal_data > 0)
+
+    configs = extract_from_data(data,"config")
     configs = remove_config_entry(configs)
     configs = normalize_configs(configs)
     configs = torch.FloatTensor(configs)
 
     data_list = []
-    for k in temporal_keys:
+    for k, normalization_factor in zip(temporal_keys, normalization_factor_temporal_data):
         d = extract_from_data(data,key=k)
         d = get_first_n_epochs(d, first_n_epochs)
+        d = normalize_temporal_data(d, normalization_factor)
         d = torch.FloatTensor(d)
         data_list.append(d)
 
