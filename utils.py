@@ -62,7 +62,7 @@ def normalize_configs(configs):
         list_values = [float(v) for v in config.values()]
         output.append(list_values)
 
-    return output
+    return np.array(output)
 
 def prep_data(data, temporal_keys=['Train/val_accuracy'], first_n_epochs=10):
     configs = extract_from_data(data,"configs")
