@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import TensorDataset, DataLoader
+from torch.autograd import Variable
 import numpy as np
 
 def check_cuda():
@@ -7,6 +8,11 @@ def check_cuda():
     if torch.cuda.is_available():
         return torch.device('cuda')
     return torch.device('cpu')
+
+def tt(ndarray):
+  if torch.cuda.is_available():
+    return Variable(torch.from_numpy(ndarray).float().cuda(), requires_grad=True)
+  return Variable(torch.from_numpy(ndarray).float(), requires_grad=True)
 
 def make_torch_dataset(data, targets):
     return TensorDataset(*data,targets)
