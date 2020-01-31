@@ -9,7 +9,7 @@ def check_cuda():
     return torch.device('cpu')
 
 def make_torch_dataset(data, targets):
-    return TensorDataset(data,targets)
+    return TensorDataset(*data,targets)
 
 def make_torch_dataloader(torch_dataset,batch_size):
     return DataLoader(dataset=torch_dataset,batch_size=batch_size)
