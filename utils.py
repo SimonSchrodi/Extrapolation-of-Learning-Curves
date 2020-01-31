@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import TensorDataset, DataLoader
 from torch.autograd import Variable
 import numpy as np
+import typing
 
 def check_cuda():
     """Returns device"""
@@ -9,43 +10,43 @@ def check_cuda():
         return torch.device('cuda')
     return torch.device('cpu')
 
-def tt(ndarray):
+def tt(ndarray:np.ndarray):
   if torch.cuda.is_available():
     return Variable(torch.from_numpy(ndarray).float().cuda(), requires_grad=True)
   return Variable(torch.from_numpy(ndarray).float(), requires_grad=True)
 
-def make_torch_dataset(data, targets):
+def make_torch_dataset(data:np.ndarray, targets:np.ndarray)->torch.utils.data.dataset:
     return TensorDataset(*data,targets)
 
-def make_torch_dataloader(torch_dataset,batch_size):
+def make_torch_dataloader(torch_dataset:torch.utils.data.dataset,batch_size)->torch.utils.data.dataset:
     return DataLoader(dataset=torch_dataset,batch_size=batch_size)
 
-def remove_config_entry(configs,keys=['activation',
-                                      'cosine_annealing_T_max',
-                                      'cosine_annealing_eta_min',
-                                      'imputation_strategy',
-                                      'learning_rate_scheduler',
-                                      'loss',
-                                      'mlp_shape',
-                                      'normalization_strategy',
-                                      'optimizer',
-                                      'network']):
+def remove_config_entry(configs:np.ndarray,keys=['activation',
+                                                 'cosine_annealing_T_max',
+                                                 'cosine_annealing_eta_min',
+                                                 'imputation_strategy',
+                                                 'learning_rate_scheduler',
+                                                 'loss',
+                                                 'mlp_shape',
+                                                 'normalization_strategy',
+                                                 'optimizer',
+                                                 'network'])->np.ndarray:
     for c in configs:
         for key in keys:
             if key in c.keys():
                 del c[key]
     return configs
 
-def get_first_n_epochs(temporal_data,n=10):
+def get_first_n_epochs(temporal_data:np.ndarray,n=10):
     return temporal_data[:,:n]
 
-def extract_from_data(data, key):
+def extract_from_data(data:np.ndarray, key)->np.ndarray:
     output = []
     for d in data:
         output.append(d[key])
     return np.array(output)
 
-def normalize_configs(configs):
+def normalize_configs(configs:np.ndarray)->np.ndarray:
     output = []
     for config in configs:
         #config['activation'] = 0 if "relu" else 1
@@ -70,7 +71,10 @@ def normalize_configs(configs):
 
     return np.array(output)
 
-def prep_data(data, temporal_keys=['Train/val_accuracy'], first_n_epochs=10):
+def normalize_accuracies(accuracies:np.ndarray)->np.ndarray:
+    return accuracies/100
+
+def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size, temporal_keys=['Train/val_accuracy'], first_n_epochs=10):
     configs = extract_from_data(data,"configs")
     configs = remove_config_entry(configs)
     configs = normalize_configs(configs)
@@ -84,3 +88,8 @@ def prep_data(data, temporal_keys=['Train/val_accuracy'], first_n_epochs=10):
         data_list.append(d)
 
     data_list.append(configs)
+    target_data = torch.FloatTensor(target_data)
+    dataset = make_torch_dataset(data_list,target_data)
+    data_loader = make_torch_dataloader(dataset,batch_size)
+    return data_loader
+
