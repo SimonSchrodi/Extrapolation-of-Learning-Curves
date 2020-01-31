@@ -40,6 +40,7 @@ def extract_from_data(data, key):
     return np.array(output)
 
 def normalize_configs(configs):
+    output = []
     for config in configs:
         #config['activation'] = 0 if "relu" else 1
         config['batch_size'] /= 511
@@ -58,7 +59,10 @@ def normalize_configs(configs):
         #config['optimizer'] = 0
         config['weight_decay'] = config['weight_decay']
 
-    return configs
+        list_values = [float(v) for v in config.values()]
+        output.append(list_values)
+
+    return output
 
 def prep_data(data, temporal_keys=['Train/val_accuracy'], first_n_epochs=10):
     configs = extract_from_data(data,"configs")
@@ -74,4 +78,3 @@ def prep_data(data, temporal_keys=['Train/val_accuracy'], first_n_epochs=10):
         data_list.append(d)
 
     data_list.append(configs)
-    
