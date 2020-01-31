@@ -22,7 +22,8 @@ def remove_config_entry(configs,keys=['activation',
                                       'loss',
                                       'mlp_shape',
                                       'normalization_strategy',
-                                      'optimizer']):
+                                      'optimizer',
+                                      'network']):
     for c in configs:
         for key in keys:
             if key in c.keys():
@@ -56,3 +57,21 @@ def normalize_configs(configs):
         config['num_layers'] /= 4
         #config['optimizer'] = 0
         config['weight_decay'] = config['weight_decay']
+
+    return configs
+
+def prep_data(data, temporal_keys=['Train/val_accuracy'], first_n_epochs=10):
+    configs = extract_from_data(data,"configs")
+    configs = remove_config_entry(configs)
+    configs = normalize_configs(configs)
+    configs = torch.FloatTensor(configs)
+
+    data_list = []
+    for k in temporal_keys:
+        d = extract_from_data(data,key=k)
+        d = get_first_n_epochs(d, first_n_epochs)
+        d = torch.FloatTensor(d)
+        data_list.append(d)
+
+    data_list.append(configs)
+    
