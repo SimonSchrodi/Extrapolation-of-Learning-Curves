@@ -82,7 +82,6 @@ def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
     assert batch_size > 0
     assert first_n_epochs > 0
     assert len(temporal_keys) == len(normalization_factor_temporal_data)
-    assert all(normalization_factor_temporal_data > 0)
 
     configs = extract_from_data(data,"config")
     configs = remove_config_entry(configs)
