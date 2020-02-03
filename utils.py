@@ -102,9 +102,10 @@ def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
         data_list.append(d)
 
     data_list.append(configs)
+
     if one_shot:
         val_acc = extract_from_data(data, key='Train/val_accuracy')
-        target_data = get_last_n_epochs(val_acc)
+        target_data = val_acc
 
     target_data = torch.FloatTensor(target_data)
     dataset = make_torch_dataset(data_list,target_data)
