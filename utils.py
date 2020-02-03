@@ -80,7 +80,8 @@ def normalize_temporal_data(temporal_data:np.ndarray,
 
 def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
               temporal_keys=['Train/val_accuracy'], first_n_epochs=10,
-              normalization_factor_temporal_data=[1])->torch.utils.data.dataset:
+              normalization_factor_temporal_data=[1],
+              one_shot=False)->torch.utils.data.dataset:
 
     assert batch_size > 0
     assert first_n_epochs > 0
@@ -101,6 +102,10 @@ def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
         data_list.append(d)
 
     data_list.append(configs)
+    if one_shot:
+        val_acc = extract_from_data(data, key='Train/val_accuracy')
+        target_data = get_last_n_epochs(val_acc)
+
     target_data = torch.FloatTensor(target_data)
     dataset = make_torch_dataset(data_list,target_data)
     data_loader = make_torch_dataloader(dataset,batch_size)
