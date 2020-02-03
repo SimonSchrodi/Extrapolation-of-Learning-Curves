@@ -40,7 +40,7 @@ def remove_config_entry(configs:np.ndarray,keys=['activation',
 def get_first_n_epochs(temporal_data:np.ndarray,n=10)->np.ndarray:
     return temporal_data[:,:n]
 
-def get_last_n_epochs(temporal_data:np.ndarray,n=40)->np.ndarray:
+def get_last_n_epochs(temporal_data:np.ndarray,n=41)->np.ndarray:
     return temporal_data[:,-n:]
 
 def extract_from_data(data:np.ndarray, key)->np.ndarray:
