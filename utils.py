@@ -37,8 +37,11 @@ def remove_config_entry(configs:np.ndarray,keys=['activation',
                 del c[key]
     return configs
 
-def get_first_n_epochs(temporal_data:np.ndarray,n=10):
+def get_first_n_epochs(temporal_data:np.ndarray,n=10)->np.ndarray:
     return temporal_data[:,:n]
+
+def get_last_n_epochs(temporal_data:np.ndarray,n=40)->np.ndarray:
+    return temporal_data[:,-n:]
 
 def extract_from_data(data:np.ndarray, key)->np.ndarray:
     output = []
@@ -77,11 +80,12 @@ def normalize_temporal_data(temporal_data:np.ndarray,
 
 def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
               temporal_keys=['Train/val_accuracy'], first_n_epochs=10,
-              normalization_factor_temporal_data=[1]):
+              normalization_factor_temporal_data=[1])->torch.utils.data.dataset:
 
     assert batch_size > 0
     assert first_n_epochs > 0
     assert len(temporal_keys) == len(normalization_factor_temporal_data)
+    assert all([normalization_factor > 0 for normalization_factor in normalization_factor_temporal_data])
 
     configs = extract_from_data(data,"config")
     configs = remove_config_entry(configs)
@@ -101,4 +105,3 @@ def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
     dataset = make_torch_dataset(data_list,target_data)
     data_loader = make_torch_dataloader(dataset,batch_size)
     return data_loader
-
