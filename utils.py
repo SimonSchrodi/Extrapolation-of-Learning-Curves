@@ -102,7 +102,6 @@ def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
         d = torch.FloatTensor(d)
         data_list.append(d)
 
-    data_list.append(configs)
     data_list = pack_sequence(data_list)
 
     if one_shot:
@@ -110,6 +109,6 @@ def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
         target_data = val_acc
 
     target_data = torch.FloatTensor(target_data)
-    dataset = make_torch_dataset(data_list,target_data)
+    dataset = make_torch_dataset([data_list, configs],target_data)
     data_loader = make_torch_dataloader(dataset,batch_size)
     return data_loader
