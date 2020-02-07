@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import TensorDataset, DataLoader
+from torch.nn.utils.rnn import pack_sequence
 from torch.autograd import Variable
 import numpy as np
 import typing
@@ -102,7 +103,7 @@ def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
         data_list.append(d)
 
     data_list.append(configs)
-    data_list = torch.FloatTensor(data_list)
+    data_list = pack_sequence(data_list)
 
     if one_shot:
         val_acc = extract_from_data(data, key='Train/val_accuracy')
