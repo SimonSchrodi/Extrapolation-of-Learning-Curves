@@ -98,17 +98,16 @@ def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
         d = extract_from_data(data,key=k)
         d = get_first_n_epochs(d, first_n_epochs)
         d = normalize_temporal_data(d, normalization_factor)
-        #d = torch.FloatTensor(d)
+        d = torch.FloatTensor(d)
         data_list.append(d)
 
-    data_list = np.array(data_list)
-    data_list = tt(data_list)
+    data_list.append(configs)
 
     if one_shot:
         val_acc = extract_from_data(data, key='Train/val_accuracy')
         target_data = val_acc
 
     target_data = torch.FloatTensor(target_data)
-    dataset = make_torch_dataset([data_list,configs],target_data)
+    dataset = make_torch_dataset(data_list,target_data)
     data_loader = make_torch_dataloader(dataset,batch_size)
     return data_loader
