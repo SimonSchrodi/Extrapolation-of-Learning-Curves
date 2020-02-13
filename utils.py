@@ -107,6 +107,7 @@ def prep_data(data:np.ndarray, target_data:np.ndarray, batch_size,
         val_acc = extract_from_data(data, key='Train/val_accuracy')
         target_data = val_acc
 
+    target_data = normalize_temporal_data(target_data, 100)
     target_data = torch.FloatTensor(target_data)
     dataset = make_torch_dataset(data_list,target_data)
     data_loader = make_torch_dataloader(dataset,batch_size)
