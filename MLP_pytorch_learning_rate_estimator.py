@@ -465,6 +465,19 @@ class LCPredict(nn.Module):
 
 
 
+def train_model(model, loss, optimizer, train_X, train_Y, b_size, epochs):
+    """
+    Function trains the model
+    """
+
+    n_full_batches = train_X.shape[0] / b_size  # number of full bacthes of b_size possible
+    n_last_batch = train_X.shape[0] - (n_full_batches * b_size) # size of last batch
+
+    for n_epoch in range(epochs):
+
+        for b in range(n_full_batches):
+            pass
+
 
 
 if __name__ == "__main__":
@@ -503,11 +516,7 @@ if __name__ == "__main__":
     optimizer_adam = Adam(model.parameters())
 
     # training loop
-    for epochs in range(100):
-        for index, data in enumerate(train_X):
-
-            label = train_Y[index]
-
+    train_model(model, loss_fn, optimizer_adam, train_X_tensor, train_Y_tensor, 16, 100)
 
 
 
