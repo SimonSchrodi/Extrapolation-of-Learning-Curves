@@ -434,16 +434,16 @@ class LCPredict(nn.Module):
         super(LCPredict, self).__init__()
 
         self.lin1 = nn.Linear(8, 16)
-        self.sig1 = nn.Sigmoid()
+        self.sig1 = nn.ReLU()
         self.drp1 = nn.Dropout(p=0.3)  # probability of being zeroed
 
         self.lin2 = nn.Linear(16, 8)
-        self.sig2 = nn.Sigmoid()
+        self.sig2 = nn.ReLU()
         self.drp2 = nn.Dropout(p=0.2)
 
         # no dropout for last block
         self.lin3 = nn.Linear(8, 1)
-        self.sig3 = nn.Sigmoid()
+        self.sig3 = nn.ReLU()
 
     def forward(self, x):
         x = self.sig1(self.lin1(x))
