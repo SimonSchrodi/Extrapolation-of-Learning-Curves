@@ -10,6 +10,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from collections import namedtuple
+from torch.optim import Adam, SGD
 
 # import torch
 from torch.utils.data import TensorDataset, DataLoader
@@ -279,14 +280,14 @@ def get_data(train_data, val_data, test_data, train_targets, val_targets, test_t
 
 
   # ------------ new code - just make column vectors for each config, so (1000, 10, 1) is the shape of training data ---------------#
-  # we will only use the config parmas and the train/val_accuracy
-  train_data_new_X = np.zeros((1000, 14, 1))
+  # we will only use the config parmas and the train/val_accuracy, so 8 features per input
+  train_data_new_X = np.zeros((1000, 8, 1))
   train_data_new_Y = np.zeros((1000, 1))
 
-  val_data_X = np.zeros((500, 14, 1))
+  val_data_X = np.zeros((500, 8, 1))
   val_data_Y = np.zeros((500, 1))
 
-  test_data_X = np.zeros((500, 14, 1))
+  test_data_X = np.zeros((500, 8, 1))
   test_data_Y = np.zeros((500, 1))
 
   for index, data in enumerate(train_data):
@@ -300,13 +301,15 @@ def get_data(train_data, val_data, test_data, train_targets, val_targets, test_t
     train_data_new_X[index, 6] = data["config"]["weight_decay"]
 
     #------- dynamic params -----------#
-    train_data_new_X[index, 7] = np.sum(np.asarray(data["Train/loss"][0:10])) / 10  # these we use only first 10 epochs, average loss
-    train_data_new_X[index, 8] = np.sum(np.asarray(data["Train/train_accuracy"][0:10])) / 10 # average accuracy across 10 epochs
-    train_data_new_X[index, 9] = np.sum(np.asarray(data["Train/val_accuracy"][0:10])) / 10 # average val_acc across 10 epochs
-    train_data_new_X[index, 10] = np.sum(np.asarray(data["Train/train_cross_entropy"][0:10])) / 10
-    train_data_new_X[index, 11] = np.sum(np.asarray(data["Train/val_cross_entropy"][0:10])) / 10
-    train_data_new_X[index, 12] = np.sum(np.asarray(data["Train/gradient_mean"][0:10])) / 10
-    train_data_new_X[index, 13] = np.sum(np.asarray(data["Train/lr"][0:10])) / 10
+    train_data_new_X[index, 7] = np.sum(np.asarray(data["Train/val_accuracy"][0:10])) / 10  # average train_val acc across 10 epochs
+
+    # train_data_new_X[index, 7] = np.sum(np.asarray(data["Train/loss"][0:10])) / 10  # these we use only first 10 epochs, average loss
+    # train_data_new_X[index, 8] = np.sum(np.asarray(data["Train/train_accuracy"][0:10])) / 10 # average accuracy across 10 epochs
+    # train_data_new_X[index, 9] = np.sum(np.asarray(data["Train/val_accuracy"][0:10])) / 10 # average val_acc across 10 epochs
+    # train_data_new_X[index, 10] = np.sum(np.asarray(data["Train/train_cross_entropy"][0:10])) / 10
+    # train_data_new_X[index, 11] = np.sum(np.asarray(data["Train/val_cross_entropy"][0:10])) / 10
+    # train_data_new_X[index, 12] = np.sum(np.asarray(data["Train/gradient_mean"][0:10])) / 10
+    # train_data_new_X[index, 13] = np.sum(np.asarray(data["Train/lr"][0:10])) / 10
 
 
     train_data_new_Y[index] = train_targets[index]  # validation accuracy for 51st epoch, for each
@@ -317,7 +320,7 @@ def get_data(train_data, val_data, test_data, train_targets, val_targets, test_t
 
 
   # normalize each feature across all batches, so each feature is in range [0-1]
-  for feat_index in range(14):
+  for feat_index in range(8):
     feat_min = np.min(train_data_new_X[:, feat_index, 0])  # min of feature 0 across all batches
     feat_max = np.max(train_data_new_X[:, feat_index, 0]) 
     # print(feat_min, feat_max)
@@ -347,24 +350,26 @@ def get_data(train_data, val_data, test_data, train_targets, val_targets, test_t
     val_data_X[index, 6] = data["config"]["weight_decay"]
 
     #------- dynamic params -----------#
+    val_data_X[index, 7] = np.sum(np.asarray(data["Train/val_accuracy"][0:10])) / 10
+
     # val_data_X[index, 7] = np.sum(np.asarray(data["Train/loss"][0:10])) / 10  # these we use only first 10 epochs, average loss
     # val_data_X[index, 8] = np.sum(np.asarray(data["Train/train_accuracy"][0:10])) / 10 # average accuracy across 10 epochs
     # val_data_X[index, 9] = np.sum(np.asarray(data["Train/val_accuracy"][0:10])) / 10 # average val_acc across 10 epochs
 
-    val_data_X[index, 7] = np.sum(np.asarray(data["Train/loss"][0:10])) / 10  # these we use only first 10 epochs, average loss
-    val_data_X[index, 8] = np.sum(np.asarray(data["Train/train_accuracy"][0:10])) / 10 # average accuracy across 10 epochs
-    val_data_X[index, 9] = np.sum(np.asarray(data["Train/val_accuracy"][0:10])) / 10 # average val_acc across 10 epochs
-    val_data_X[index, 10] = np.sum(np.asarray(data["Train/train_cross_entropy"][0:10])) / 10
-    val_data_X[index, 11] = np.sum(np.asarray(data["Train/val_cross_entropy"][0:10])) / 10
-    val_data_X[index, 12] = np.sum(np.asarray(data["Train/gradient_mean"][0:10])) / 10
-    val_data_X[index, 13] = np.sum(np.asarray(data["Train/lr"][0:10])) / 10
+    # val_data_X[index, 7] = np.sum(np.asarray(data["Train/loss"][0:10])) / 10  # these we use only first 10 epochs, average loss
+    # val_data_X[index, 8] = np.sum(np.asarray(data["Train/train_accuracy"][0:10])) / 10 # average accuracy across 10 epochs
+    # val_data_X[index, 9] = np.sum(np.asarray(data["Train/val_accuracy"][0:10])) / 10 # average val_acc across 10 epochs
+    # val_data_X[index, 10] = np.sum(np.asarray(data["Train/train_cross_entropy"][0:10])) / 10
+    # val_data_X[index, 11] = np.sum(np.asarray(data["Train/val_cross_entropy"][0:10])) / 10
+    # val_data_X[index, 12] = np.sum(np.asarray(data["Train/gradient_mean"][0:10])) / 10
+    # val_data_X[index, 13] = np.sum(np.asarray(data["Train/lr"][0:10])) / 10
 
     val_data_Y[index] = val_targets[index]  # validation accuracy for 51st epoch, for each 
 
   
   
   # normalize each feature across all batches, so each feature is in range [0-1]
-  for feat_index in range(14):
+  for feat_index in range(8):
     feat_min = np.min(val_data_X[:, feat_index, 0])  # min of feature 0 across all batches
     feat_max = np.max(val_data_X[:, feat_index, 0]) 
     print(feat_min, feat_max)
@@ -393,20 +398,22 @@ def get_data(train_data, val_data, test_data, train_targets, val_targets, test_t
     test_data_X[index, 6] = data["config"]["weight_decay"]
 
     #------- dynamic params -----------#
-    test_data_X[index, 7] = np.sum(np.asarray(data["Train/loss"][0:10])) / 10  # these we use only first 10 epochs, average loss
-    test_data_X[index, 8] = np.sum(np.asarray(data["Train/train_accuracy"][0:10])) / 10 # average accuracy across 10 epochs
-    test_data_X[index, 9] = np.sum(np.asarray(data["Train/val_accuracy"][0:10])) / 10 # average val_acc across 10 epochs
-    test_data_X[index, 10] = np.sum(np.asarray(data["Train/train_cross_entropy"][0:10])) / 10
-    test_data_X[index, 11] = np.sum(np.asarray(data["Train/val_cross_entropy"][0:10])) / 10
-    test_data_X[index, 12] = np.sum(np.asarray(data["Train/gradient_mean"][0:10])) / 10
-    test_data_X[index, 13] = np.sum(np.asarray(data["Train/lr"][0:10])) / 10
+    test_data_X[index, 7] = np.sum(np.asarray(data["Train/val_accuracy"][0:10])) / 10
+    
+    # test_data_X[index, 7] = np.sum(np.asarray(data["Train/loss"][0:10])) / 10  # these we use only first 10 epochs, average loss
+    # test_data_X[index, 8] = np.sum(np.asarray(data["Train/train_accuracy"][0:10])) / 10 # average accuracy across 10 epochs
+    # test_data_X[index, 9] = np.sum(np.asarray(data["Train/val_accuracy"][0:10])) / 10 # average val_acc across 10 epochs
+    # test_data_X[index, 10] = np.sum(np.asarray(data["Train/train_cross_entropy"][0:10])) / 10
+    # test_data_X[index, 11] = np.sum(np.asarray(data["Train/val_cross_entropy"][0:10])) / 10
+    # test_data_X[index, 12] = np.sum(np.asarray(data["Train/gradient_mean"][0:10])) / 10
+    # test_data_X[index, 13] = np.sum(np.asarray(data["Train/lr"][0:10])) / 10
 
 
     test_data_Y[index] = test_targets[index]  # validation accuracy for 51st epoch, for each 
     
   
   # normalize each feature across all batches, so each feature is in range [0-1]
-  for feat_index in range(14):
+  for feat_index in range(8):
     feat_min = np.min(test_data_X[:, feat_index, 0])  # min of feature 0 across all batches
     feat_max = np.max(test_data_X[:, feat_index, 0]) 
     print(feat_min, feat_max)
@@ -428,6 +435,38 @@ def get_data(train_data, val_data, test_data, train_targets, val_targets, test_t
   return train_data_new_X, train_data_new_Y, val_data_X, val_data_Y, test_data_X, test_data_Y
 
 
+
+# build the model here
+class LCPredict(nn.Module):
+    
+    def __init__(self):
+
+        super(LCPredict, self).__init__()
+
+        self.lin1 = nn.Linear(8, 16)
+        self.sig1 = nn.Sigmoid()
+        self.drp1 = nn.Dropout(p=0.3)  # probability of being zeroed
+        
+        self.lin2 = nn.Linear(16, 8)
+        self.drp2 = nn.Dropout(p=0.3)
+        self.lin3 = nn.Linear(8, 1)
+
+    def forward(self, x):
+
+        x = F.sigmoid(self.lin1(x))
+        x = self.drp1(x)
+
+        x = F.sigmoid(self.lin2(x))
+        x = self.drp2(x)
+
+        x = F.sigmoid(self.lin3(x))
+
+        return x
+
+
+
+
+
 if __name__ == "__main__":
     print("------------- Let us predict some learning curves --------------")
 
@@ -443,3 +482,33 @@ if __name__ == "__main__":
     train_X, train_Y, val_X, val_Y, test_X, test_Y = get_data(train_data, val_data, test_data, train_targets, val_targets, test_targets)  # get the prepared data
 
     print(train_X.shape, train_Y.shape, val_X.shape, val_Y.shape)
+
+    # get model and send to GPU
+    model = LCPredict()
+    device = torch.device("cuda")
+    model.to(device=device)
+
+    # convert all data to torch tensors and send to GPU
+    train_X_tensor = torch.from_numpy(train_X).to(device=device)
+    train_Y_tensor = torch.from_numpy(train_Y).to(device=device)
+    val_X_tensor = torch.from_numpy(val_X).to(device=device)
+    val_Y_tensor = torch.from_numpy(val_Y).to(device=device)
+    test_X_tensor = torch.from_numpy(test_X).to(device=device)
+    test_Y_tensor = torch.from_numpy(test_Y).to(device=device)
+
+    # create a loss fuction
+    loss_fn = nn.MSELoss()
+
+    # create an optimizer
+    optimizer_adam = Adam(model.parameters())
+
+    # training loop
+    for epochs in range(100):
+        for index, data in enumerate(train_X):
+
+            label = train_Y[index]
+
+
+
+
+
