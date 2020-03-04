@@ -620,9 +620,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7446784"
-     inkscape:cx="432.48013"
-     inkscape:cy="402.65656"
+     inkscape:zoom="0.4974219"
+     inkscape:cx="566.75385"
+     inkscape:cy="509.08412"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -639,7 +639,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -667,13 +667,13 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="148.97353"
-       y="193.03304"
+       x="146.58543"
+       y="194.32431"
        id="text1187"><tspan
          sodipodi:role="line"
          id="tspan1185"
-         x="148.97353"
-         y="193.03304"
+         x="146.58543"
+         y="194.32431"
          style="font-size:8.46666622px;stroke-width:0.26458332">Encoder Network</tspan></text>
     <rect
        style="opacity:0.32300002;fill:#ff7f2a;stroke:none;stroke-width:0.04969916;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers"
@@ -709,12 +709,12 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="145.12383"
+       x="149.3571"
        y="106.66372"
        id="text1187-0"><tspan
          sodipodi:role="line"
          id="tspan1185-6"
-         x="145.12383"
+         x="149.3571"
          y="106.66372"
          style="font-size:8.46666622px;stroke-width:0.26458332">Decoder Network</tspan></text>
     <rect
@@ -1081,8 +1081,8 @@
        id="rect2625-1-4"
        width="184.95061"
        height="68.383644"
-       x="89.138115"
-       y="98.381058"
+       x="89.667282"
+       y="96.793556"
        ry="13.950252" />
     <text
        xml:space="preserve"
@@ -1123,7 +1123,7 @@
        width="176.54803"
        height="59.98106"
        x="92.217773"
-       y="181.23891"
+       y="182.82639"
        ry="12.236127" />
   </g>
 </svg>
